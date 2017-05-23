@@ -1,0 +1,149 @@
+﻿<Controls:MetroWindow  x:Class="FileAndFolderDialogs.ATFileDialog"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:FileAndFolderDialogs"
+        xmlns:Controls="http://metro.mahapps.com/winfx/xaml/controls"
+        xmlns:Model="clr-namespace:FileAndFolderDialogs.Models"
+        xmlns:VM="clr-namespace:FileAndFolderDialogs.ViewModels"
+        xmlns:helpers="clr-namespace:FileAndFolderDialogs.Helpers"
+        mc:Ignorable="d"
+        Title="ATFileDialog" Height="400" Width="600">
+    <Controls:MetroWindow.Resources>
+        <HierarchicalDataTemplate DataType="{x:Type Model:FileFolderInfo}"
+                                  ItemsSource="{Binding FileFolders}">
+            <StackPanel Orientation="Horizontal">
+                <Image Width="20" Height="20">
+                    <Image.Style>
+                        <Style TargetType="Image">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{Binding IsDrive}" Value="true">
+                                    <Setter Property="Source" Value="/Images/harddrive.png"/>
+                                </DataTrigger>
+                                <DataTrigger Binding="{Binding IsDirectory}" Value="true">
+                                    <Setter Property="Source" Value="/Images/folderdrive.png"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </Image.Style>
+                </Image>
+                <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
+            </StackPanel>
+        </HierarchicalDataTemplate>
+        <Style TargetType="TreeViewItem">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding IsFile}" Value="true">
+                    <Setter Property="Visibility" Value="Collapsed"/>
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>
+        <!--<DataTemplate DataType="{x:Type Model:FileFolderInfo}">
+            <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
+        </DataTemplate>-->
+    </Controls:MetroWindow.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="70*"/>
+            <RowDefinition Height="10*"/>
+            <RowDefinition Height="10*"/>
+        </Grid.RowDefinitions>
+        <Grid Grid.Row="0" Visibility="Collapsed">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="10*"/>
+                <ColumnDefinition Width="50*"/>
+                <ColumnDefinition Width="30*"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <StackPanel Orientation="Horizontal"  HorizontalAlignment="Center">
+                    <Button Content="UP"></Button>
+                </StackPanel>
+            </Grid>
+            <Grid Grid.Column="1">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*"/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBox HorizontalAlignment="Stretch" VerticalAlignment="Stretch" Grid.Column="0"/>
+                <Button Width="20" Grid.Column="1"/>
+            </Grid>
+            <TextBox Grid.Column="2" Controls:TextBoxHelper.Watermark="Search" Controls:TextBoxHelper.ClearTextButton="True"/>
+        </Grid>
+        <Grid Grid.Row="1">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="25*"/>
+                <ColumnDefinition Width="75*"/>
+            </Grid.ColumnDefinitions>
+            <TreeView Name="treeview" Grid.Column="0" ItemsSource="{Binding Drives}" helpers:TreeViewHelper.Attach="True"  VirtualizingStackPanel.IsVirtualizing="True" helpers:TreeViewHelper.SelectedItem="{Binding Path=SelectedTreeViewItem,Mode=TwoWay,UpdateSourceTrigger=PropertyChanged}">
+            </TreeView>
+            <DataGrid Name="dg" Grid.Column="1" AutoGenerateColumns="False" SelectedItem="{Binding SelectedFileItem}" CanUserAddRows="False" ItemsSource="{Binding SelectedTreeViewItem.FileFolders}" IsSynchronizedWithCurrentItem="True" MouseDoubleClick="dg_MouseDoubleClick" >
+                <DataGrid.Columns>
+                    <DataGridTemplateColumn Header="Name" Width="*">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Width="20" Height="20">
+                                        <Image.Style>
+                                            <Style TargetType="Image">
+                                                <Style.Triggers>
+                                                    <DataTrigger Binding="{Binding IsFile}" Value="true">
+                                                        <Setter Property="Source" Value="/Images/file.png"/>
+                                                    </DataTrigger>
+                                                    <DataTrigger Binding="{Binding IsDirectory}" Value="true">
+                                                        <Setter Property="Source" Value="/Images/folderdrive.png"/>
+                                                    </DataTrigger>
+                                                </Style.Triggers>
+                                            </Style>
+                                        </Image.Style>
+                                    </Image>
+                                    <TextBlock Text="{Binding Path=Name}" ToolTip="{Binding Path=Path}" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+                    <DataGridTextColumn Header="Date Modified" Binding="{Binding DateModified}" Width="Auto"/>
+                </DataGrid.Columns>
+                <!--<DataGrid.InputBindings>
+                    <MouseBinding
+            MouseAction="LeftDoubleClick"
+            Command="{Binding DataGridDoubleClickCommand}"  CommandParameter="{Binding ElementName=dg, Path=SelectedItem}"/>
+                </DataGrid.InputBindings>-->
+            </DataGrid>
+        </Grid>
+        <Grid Grid.Row="2">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="80*"/>
+                <ColumnDefinition Width="Auto"/>
+            </Grid.ColumnDefinitions>
+            <Grid Grid.Column="0">
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="20*"/>
+                    <ColumnDefinition Width="80*"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Text="File Name: " Grid.Column="0" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+                <TextBox HorizontalAlignment="Stretch" Grid.Column="1">
+                    <TextBox.Style>
+                        <Style TargetType="TextBox">
+                            <Style.Triggers>
+                                <DataTrigger Binding="{ Binding SelectedFileItem.IsFile}" Value="true">
+                                    <Setter Property="Text" Value="{Binding SelectedFileItem.Path}"/>
+                                </DataTrigger>
+                            </Style.Triggers>
+                        </Style>
+                    </TextBox.Style>
+                </TextBox>
+            </Grid>
+            <ComboBox Grid.Column="1" Visibility="Collapsed"/>
+        </Grid>
+        <Grid Grid.Row="3">
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="60*"/>
+                <ColumnDefinition Width="20*"/>
+                <ColumnDefinition Width="20*"/>
+            </Grid.ColumnDefinitions>
+            <Button Content="Open" Grid.Column="1" Click="Button_Click"/>
+            <Button Content="Cancel"  Grid.Column="2"/>
+        </Grid>
+    </Grid>
+</Controls:MetroWindow>
